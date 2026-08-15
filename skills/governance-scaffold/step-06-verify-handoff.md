@@ -53,7 +53,7 @@ Give the user a compact close-out:
 - **Handoff:** the layer is ready to be *operated* by the governance command family — `decision-intake`
   (land ideas), `feature-intake` (register features), `decision-record` (log decisions),
   `tech-scout` (adopt tech), `governance-check` (audit), and `epics-projection` (project a
-  milestone's epics into `_epics/`, then build). Point at `epics-projection` as the immediate next step;
+  milestone's epics into `implementation/`, then build). Point at `epics-projection` as the immediate next step;
   this skill's job ends at a coherent, self-describing governance layer.
 
 ## Done

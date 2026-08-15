@@ -1,8 +1,8 @@
 {
   "name": "bmad-governance-kit",
   "displayName": "BMAD Governance Kit",
-  "version": "0.1.0",
-  "description": "Scaffold and operate a durable four-pillar governance layer on any BMAD-planned project — a registry with a coverage matrix, an append-only decision log, an architecture spine with anchored/movable tags, plus the commands that keep it drift-free.",
+  "version": "0.2.0",
+  "description": "Scaffold and operate a durable four-pillar governance layer on any BMAD-planned project — a registry with a coverage matrix, an append-only decision log, an architecture spine with anchored/movable tags, and a self-describing constitution — plus ten commands (scaffold + intake, spec, feature-intake, decision-record, tech-scout, governance-check, epics-projection, test-strategy, fix) that keep it drift-free. Ships faithful pillar templates, controlled vocabularies, and an operating contract.",
   "author": {
     "name": "Oscar Valls"
   },
@@ -16,6 +16,8 @@
     "roadmap",
     "decisions",
     "architecture",
+    "coverage-matrix",
+    "anti-drift",
     "skills"
   ],
   "skills": "./skills/"

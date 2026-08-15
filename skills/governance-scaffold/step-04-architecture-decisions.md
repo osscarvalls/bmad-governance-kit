@@ -15,7 +15,10 @@ decisions the plan already made.
 
 ## 1 · Structure architecture.md
 
-Build (or, in merge mode, restructure the existing architecture doc into) three sections:
+Use the bundled templates `assets/templates/architecture.template.md` and
+`assets/templates/DECISIONS.template.md` (they carry the spine/§B/§C structure, the tag grammar, and the
+append-only decision format). Build (or, in merge mode, restructure the existing architecture doc into) three
+sections:
 
 ```markdown
 # <Project> — architecture (HOW — structural)   ·   source_of_truth: ROADMAP
@@ -60,7 +63,7 @@ entry:
 > Append-only. Two allowed edits, both additive forward-pointers that never rewrite an entry:
 > (a) `· SUPERSEDED-BY D-NN` when a later decision replaces this one (this one becomes [SUPERSEDED]);
 > (b) `· reframed by D-NN` when a later one narrows/reframes it without replacing it (this stays VIGENTE).
-> A decision that changes on the merits = a NEW entry. Long rationale/evidence lives in `_history/`.
+> A decision that changes on the merits = a NEW entry. Long rationale/evidence lives in `history/`.
 
 ## D-01 · <title>   ·   <YYYY-MM-DD>
 **Decision:** <what was decided — affirmative, timeless>.

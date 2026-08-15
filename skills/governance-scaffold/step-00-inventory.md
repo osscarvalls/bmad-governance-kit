@@ -44,8 +44,8 @@ feature table, a `DECISIONS.md`, an architecture doc with `anchored`/`movable` t
 ## 3 · Decide where governance lives
 
 Default `{gov}` = `{project-root}/governance/`. Confirm with the user, or accept a different target (some
-teams keep it at repo root, or alongside the plan). Whatever they choose, all four pillars + `_history/` +
-`_epics/` live under `{gov}`.
+teams keep it at repo root, or alongside the plan). Whatever they choose, all four pillars + `history/` +
+`implementation/` live under `{gov}`.
 
 ## 4 · Read the plan for shape (not detail yet)
 

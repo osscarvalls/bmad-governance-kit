@@ -32,7 +32,9 @@ the capability they serve. For each feature capture:
 
 ## 2 · Write ROADMAP.md
 
-Create the file with these sections:
+Start from the bundled template `assets/templates/ROADMAP.template.md` (it already carries the model
+explainer, the five laws, the status vocabulary, and the Coverage-Matrix/Graveyard/Backlog structure) and
+fill it from the features above. The section outline it produces:
 
 ```markdown
 # <Project> — ROADMAP (registry: WHAT + WHEN)

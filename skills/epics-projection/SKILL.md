@@ -1,55 +1,72 @@
 ---
 name: epics-projection
-description: PROJECT epics.md from a milestone of a governance layer's ROADMAP (the "epics are projected, never a source of truth" law) — filter the milestone → resolve its FRs per subsystem via the Coverage Matrix → DELEGATE the expansion into stories to bmad-create-epics-and-stories → order by dependencies using architecture.md (anchored first) → write _epics/epics-<milestone>.md as a regenerable projection → optionally generate the sprint plan via bmad-sprint-planning → hand off to the build loop (bmad-create-story → bmad-dev-story). It invents nothing: it projects only what the registry already declares. Use when the user says "project the epics for <milestone>", "generate epics.md", "prepare the stories for milestone X", or is about to start building a milestone. Requires a governance layer (see governance-scaffold); reads GOVERNANCE.md.
+description: PROJECT epics.md from a milestone of the ROADMAP (the "epics are projected, never a source" law) — filter the milestone → resolve its FRs per subsystem via the Coverage Matrix → DELEGATE the expansion into stories to bmad-create-epics-and-stories → order by dependencies using architecture.md (anchored first) → write a regenerable epics-<milestone>.md → generate the sprint plan via bmad-sprint-planning → hand off to the build loop. It invents nothing not in the registry. Use when the user says "project the epics for <milestone>", "generate epics.md", "prepare the stories for milestone X", or is about to start building a milestone. Requires a governance layer (see governance-scaffold); reads GOVERNANCE.md.
 ---
 
 # epics-projection
 
 **Goal:** turn a milestone of the registry into an ordered, build-ready `epics.md` — a **regenerable
-projection**, never a new source of truth. This command projects only what ROADMAP + the Coverage Matrix
-already declare; it does not invent features or FRs.
+projection, never a source of truth** (source = ROADMAP + PRDs). It invents nothing; if the ROADMAP/PRDs
+change you **re-project**, never hand-patch. The only file it writes by hand is `epics-<milestone>.md`. Obeys
+the kit's operating contract (`reference/operating-contract.md`).
 
 ## On activation
 
-1. **Resolve the layer.** Read `{gov}/GOVERNANCE.md` for the pillar paths and the `_epics/` location. No
-   layer → tell the user to run `governance-scaffold`.
-2. **Read ROADMAP.md** (the milestone tables + Coverage Matrix) and **architecture.md** (for anchored/movable
-   ordering). Read the PRD(s) for the FRs' acceptance criteria.
-3. Talk to the user in their language.
+Read `GOVERNANCE.md` (pillar paths, the implementation/ location), the ROADMAP (milestone tables + Coverage
+Matrix), architecture (for ordering), and the PRDs (for acceptance criteria).
 
-## Procedure
+## 1 · Pick the milestone & pre-flight
 
-### 1 · Pick the milestone & load its scope
 Ask which milestone (or accept it as an argument; accept narrowing to a single `Ref`). Load, **for that
-milestone only**: its registry table (`Ref`s + status) and its Coverage Matrix rows (each `Ref`'s FRs per
-subsystem). Be honest about status — if the milestone is `hypothesis`/`frozen`, the projection inherits that
-label; don't launder it into `committed`.
+milestone only**, its registry table + Coverage-Matrix rows; **project only the chosen row of a
+double-milestone split, not the other**. Be honest about status — a `hypothesis`/`frozen` milestone projects
+but the header inherits and states that; warn explicitly before projecting a frozen milestone. Recommend (and
+offer to run) `governance-check` scoped to this milestone first — *a projection inherits its source's drift*
+— plus optional `bmad-check-implementation-readiness`. Note it if skipped.
 
-### 2 · Pre-flight (recommended)
-A projection inherits its source's quality. Offer to run **`governance-check`** scoped to this milestone
-first (orphan `Ref`, empty matrix cell, live contradiction). If the user skips it, note that the coherence
-gate didn't run.
+## 2 · Resolve + expand — the expansion IS `bmad-create-epics-and-stories`
 
-### 3 · Expand into stories
-**Delegate the expansion to `bmad-create-epics-and-stories`**: each `Ref` → an epic; each FR → the stories
-that satisfy it, carrying acceptance criteria from the PRD. This skill supplies the *topology* (which Refs/
-FRs are in scope, from the matrix); BMAD supplies the *expansion*.
+The skill does **not** decompose, phrase stories, or write acceptance criteria. It builds the deterministic
+**input** — the join `milestone → Ref → FR → ACs → tag → D-NN` from the Coverage Matrix + PRDs — and enforces
+two things the command doesn't know:
 
-### 4 · Order by dependencies (anchored first)
-Use architecture.md's tags: `anchored` structural work comes before what depends on it; `movable` work is
-free to reschedule. Produce a dependency-ordered sequence of epics/stories.
+- the **traceability handle** `[Ref · <SUB>-FRn]` mandatory on every epic/story (without it a story isn't
+  projectable), and
+- the **scope frontier** (only this milestone's FRs, nothing invented).
 
-### 5 · Write the projection
-Write `{gov}/_epics/epics-<milestone>.md`: a header stating it's a **regenerable projection** of milestone
-`<X>` as of `<absolute date>` (+ inherited status), then the ordered epics → stories, each tracing
-`story → FR → Ref`. It is not a source of truth; regenerating it must be safe.
+Special cells, handled *without inventing FRs*: italic/no-code = hang off the real FR; NFR = a cross-cutting
+constraint, not a story; provisional-slug-without-FR = flagged as a coverage-gap risk, not projected with a
+fake FR. Validate the returned stories trace back; return non-tracing ones to the command; trim
+out-of-frontier ones.
 
-### 6 · Sprint plan & handoff
-Optionally invoke **`bmad-sprint-planning`** to generate the sprint status from this `epics.md`. Then hand
-off to the build loop: **`bmad-create-story` → `bmad-dev-story`** (→ review). Name that as the next step.
+## 3 · Order by dependencies (anchored first — authority = architecture)
 
-## Report
+No BMAD command orders by the spine; this is in-skill. Apply deterministic rules: **anchored/backbone first,
+movable after**; explicit cross-subsystem dependencies (schema before enforcement, base schemas before
+consumers, spine before product capability, a base agent before concrete agents, a plane before its
+consumer); phase-blockers push blocked stories behind their gate; NFRs are constraints, not ordering nodes.
+**The skill does not reclassify anchored↔movable or invent dependencies** — a suspected missing spine
+dependency is *reported* and routed (tech-scout → decision-record), not invented. Every non-trivial ordering
+choice gets a one-line rationale citing `architecture.md:line`.
 
-Show: the milestone + its `Ref`s/FRs in scope, the pre-flight result, the ordered epic list (with anchored-
-first rationale), the path written, and the handoff. Confirm the projection added no scope beyond the
-registry.
+## 4 · Write the projection
+
+`implementation/epics-<milestone>.md`, with a mandatory banner: **regenerable · projected from milestone
+`<X>` on `<YYYY-MM-DD>` · source_of_truth = ROADMAP + PRDs (NOT this file) · ordering_authority =
+architecture · do not hand-edit — re-project.** Group FRs into epics respecting the anchored-first order;
+each story carries its handle + inherited state (blocked/hypothesis/frozen marked); reference-not-restate the
+ACs. Confirm before overwriting a prior projection.
+
+## 5 · Handoff
+
+Delegate execution to `bmad-create-story` → `bmad-dev-story` (attack order = projection order). As the
+closing step, invoke `bmad-sprint-planning` to generate the sprint tracker *from* this `epics.md`
+(delegation, not hand-written). Reaffirm law #5: a capability discovered during build that isn't in the
+registry is **not** added to `epics.md` — it goes through `feature-intake`, then re-project.
+
+## 6 · Verify & report
+
+Invented-nothing; round-trips both ways; one-FR-per-layer; provisional slugs/italic cells handled without
+invention (gaps listed as risks); anchored-first order; banner present; inherited state correct; naming OK.
+Only `epics.md` was written by hand (the sprint tracker written by the delegated command is expected). List
+prior-drift risks without fixing; recommend a final `governance-check`.

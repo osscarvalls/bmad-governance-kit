@@ -23,7 +23,7 @@ Four **co-equal pillars** — each owns exactly one question, and nothing is wri
 |---|---|---|
 | **ROADMAP.md** | **WHAT + WHEN** — milestones, a **feature registry** (each feature has a stable `Ref` id), a **Coverage Matrix** (`Ref` ⇄ FRs), a **Backlog** (idea-state, pre-triage) and a **Graveyard** (killed, with reason). | The single source of "what exists and when". Says neither *how* nor *why*. |
 | **PRD(s)** | **HOW — testable** — Functional Requirements, testable, **namespaced per subsystem/layer** (`<SUB>-FRn`); non-functional requirements live in **NFR sections**, never as FRs. | Each subsystem's requirements live in its own PRD. Every FR declares which `Ref` it `serves`. |
-| **DECISIONS.md** | **WHY-NOT** — an **append-only** log of closed decisions (`D-NN`), with forward supersede/reframe pointers. | Index of what was decided and killed. Never edited in place. Long rationale/evidence goes to `_history/`. |
+| **DECISIONS.md** | **WHY-NOT** — an **append-only** log of closed decisions (`D-NN`), with forward supersede/reframe pointers. | Index of what was decided and killed. Never edited in place. Long rationale/evidence goes to `history/`. |
 | **architecture.md** | **HOW — structural** — the invariant **spine** (§A), per-subsystem structure (§B), milestone deltas (§C); every decision tagged `[milestone · anchored\|movable · serves <Ref>]`. | Points at ROADMAP/DECISIONS/PRD, never restates them. A feature that touches the spine leaves its mark here. |
 
 **This skill lays the substrate; the governance command family operates it.** Scaffolding the four documents is
@@ -37,8 +37,8 @@ Plus a **constitution** and two supporting stores:
 
 - **GOVERNANCE.md** — the rules (the anti-drift laws + the topology map). Loaded every session; if a helper
   script and this document disagree, this document wins.
-- **`_history/`** — archived evidence (meeting notes, superseded docs). Append/archive only; never edited.
-- **`_epics/`** (regenerable) — epics **projected** from a milestone. Not a source of truth.
+- **`history/`** — archived evidence (meeting notes, superseded docs). Append/archive only; never edited.
+- **`implementation/`** (regenerable) — epics **projected** from a milestone. Not a source of truth.
 
 **The navigable chain:** a *feature* (`Ref` in ROADMAP) ⇄ its *FRs* (one per subsystem it touches, in the
 PRDs) ⇄ the *how* (architecture.md) ⇄ the *why-not* (`D-NN` in DECISIONS). The `Ref` is the join key.

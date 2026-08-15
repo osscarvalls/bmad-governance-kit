@@ -1,58 +1,83 @@
 ---
 name: decision-record
-description: Record a CLOSED decision in the append-only DECISIONS log of a governance layer — assign the next D-NN, write the canonical entry (affirmative, timeless, additive), add forward SUPERSEDED-BY / reframed-by pointers to whatever it replaces or reframes, dump long rationale/evidence to _history/, and PROPAGATE the consequence to ROADMAP / PRD / architecture without duplicating. It is a SCRIBE, not a decider — it only writes when it can name what closed the decision (an explicit human close, a decision-intake verdict of "advance", or a dated meeting/session); otherwise it stops and routes to decision-intake. Use when the user says "record this decision", "we closed that…", "log this D-NN", "note this ADR", or reports a closed decision / change of course. Requires a governance layer (see governance-scaffold); reads GOVERNANCE.md to resolve pillar paths.
+description: Record a CLOSED decision in the append-only DECISIONS log — assign the next D-NN, write the canonical entry (affirmative, timeless), add forward SUPERSEDED-BY / reframe pointers, dump long rationale/evidence to history/, and PROPAGATE the consequence to ROADMAP / PRD / architecture without duplicating. It is a SCRIBE, not a decider — it only writes when it can name what closed the decision (an explicit human close, a decision-intake "advance" verdict, or a dated session); otherwise it stops and routes to decision-intake. Use when the user says "record this decision", "we closed that…", "log this D-NN", "note this ADR", or reports a closed decision / change of course. Requires a governance layer (see governance-scaffold); reads GOVERNANCE.md.
 ---
 
 # decision-record
 
-**Goal:** append **one** closed decision to `DECISIONS.md` and propagate its consequence across the other
-pillars — never duplicating, never editing a closed entry. This is the only sanctioned way to touch the
-why-not log.
+**Goal:** append **one** closed decision to the log and propagate its consequence across the other pillars —
+never duplicating, never editing a closed entry. The only sanctioned way to touch the why-not log. Obeys the
+kit's operating contract (`reference/operating-contract.md`).
 
 ## On activation
 
-1. **Resolve the layer.** Read `{gov}/GOVERNANCE.md` to get the four pillar paths (ROADMAP, PRD(s),
-   DECISIONS, architecture), the subsystem set, and the editing conventions. If there is no governance
-   layer, stop: tell the user to run `governance-scaffold` first.
-2. **Read `DECISIONS.md`** to find the highest `D-NN` and the append-only rules in force.
-3. Talk to the user in their language; write each doc in the language that doc already uses.
+Read `GOVERNANCE.md` (pillar paths, subsystems, editing conventions) and the decision log itself (to find
+the highest `D-NN` and the rules in force).
 
-## The gate: are you allowed to write? (SCRIBE, not decider)
+## STEP 0 — the authorization gate (a SCRIBE, not a decider)
 
-Recording a decision **is not the same as making it.** The log is append-only — a spurious `D-NN` cannot be
-deleted, only superseded, which corrupts the log permanently. So write **only** if you can **name what
-closed the decision**, and only one of three sources counts:
+Recording a decision **is not making it.** The log is append-only — a spurious `D-NN` can't be deleted, only
+superseded, which corrupts it permanently. So before capturing anything, **name aloud** which of three
+close-sources applies:
 
-- (a) an **explicit human close** ("we closed that…", a sign-off), or
-- (b) an **"advance" verdict from `decision-intake`**, or
-- (c) a **dated meeting/session** whose notes close it.
+- (a) an **explicit human close**, or
+- (b) an **"advance" verdict from `decision-intake`** (backed by a dossier), or
+- (c) a **dated meeting/session**.
 
-If none of these exists, **do not invent a `D-NN`.** Stop and route to `decision-intake` — you may
-*propose* that something be closed, but a human or an intake verdict authorizes the close.
+**If none → STOP. Don't assign an id. Route to `decision-intake`.** Never self-invoke from your own
+reasoning. You may *propose* a close; the human (or the intake verdict) authorizes it.
 
-## Procedure
+## 1 · Draft the five canonical fields
 
-1. **Assign `D-NN`** = highest existing + 1.
-2. **Write the canonical entry** (append-only, at the end of the log):
-   - **Title · absolute date** (`YYYY-MM-DD`).
-   - **Decision** — what was decided, affirmative and timeless (states what *is*, not what "isn't yet").
-   - **Why-not** — the alternative(s) rejected and why. This is the log's whole reason to exist.
-   - **Serves / affects** — the `Ref(s)` / `FR(s)` / spine element it touches.
-3. **Add forward pointers** to prior entries, if any (never rewrite them):
-   - `· SUPERSEDED-BY D-NN` on any entry this one **replaces** (that entry becomes `[SUPERSEDED]`).
-   - `· reframed by D-NN` on any entry this one **narrows/reframes** without replacing (it stays live).
-4. **Dump evidence** — long rationale, meeting notes, quotes, superseded docs → `{gov}/_history/`
-   (append/archive; never edited). `DECISIONS.md` references it, doesn't inline it.
-5. **Propagate the consequence** (this is not duplication — the same `D-NN` joins the pillars):
-   - If it **scheduled/scoped/killed a feature** → update the `Ref`'s row in ROADMAP (status, milestone,
-     `Decision` column) or move it to the Graveyard with this `D-NN`.
-   - If it **changed a requirement** → the PRD FR is updated (delegate wording to `bmad-prd` if available).
-   - If it **has a structural consequence** → architecture.md gets/updates the decision, tagged
-     `[milestone · anchored|movable · serves <Ref>]` with this `D-NN` (delegate to `bmad-agent-architect`
-     if available). Use `bmad-correct-course` if the decision reclassifies features.
-   - **Never copy the decision's text into three docs** — each pillar carries its own fact, joined by `D-NN`.
+- a short **title** (3–6 words) · the **decision in one line** (no long rationale) · **the effect on
+  features via a controlled verb** — CREATES / CONSTRAINS / KILLS / MOVES / PROMOTES / REWORKS / REFRAMES (or
+  `governance.` for a pure-process, no-feature-effect decision) · **source + absolute date** · **which
+  `D-NN` it supersedes** (if any). Optional `bmad-advanced-elicitation` pass to red-team the draft *before*
+  it becomes immutable.
 
-## Report
+## 2 · Assign the id
 
-Show: the new `D-NN` entry, every forward pointer added, what went to `_history/`, and the propagation
-(which ROADMAP row / FR / architecture tag changed). Confirm nothing was duplicated across pillars.
+Re-read the log; the highest id is the **last entry of the file** (append-only) — never trust a number
+remembered from another session. Decide placement by the originating session heading (append to an existing
+group, or justify a new one).
+
+## 3 · Evidence to history/ (only if long rationale exists)
+
+`history/` is **never edited** — *create* a new file or *append* to an open in-progress session; never
+rewrite a closed, signed record. Long rationale/alternatives/quotes go here; the one-line index goes in the
+log; the consequence goes in the other pillars — **three distinct facts, no paragraph copied between them.**
+Stitch the join: name the `D-NN` inside the evidence, point the log's `source` at the file. If the decision
+"exhausts itself in one line", skip this step.
+
+## 4 · Append the entry
+
+Exact canonical format copied from neighbour entries (effect verb in italics, state `[IN-FORCE]`). **The
+ONLY permitted edit to a closed entry** is adding `· SUPERSEDED-BY D-NN` (and flipping `[IN-FORCE]→
+[SUPERSEDED]`) or a `· reframed|narrowed|refined by D-NN` pointer — **never rewrite text, never delete.** A
+changed decision = a *new* entry, not an edit. Update the header `sources:` list only if a new evidence file
+was born.
+
+## 5 · Propagate the consequence as a QUAD, not a duplicate (the anti-drift core)
+
+ROADMAP=WHEN · PRD=HOW-testable · architecture=HOW-structural · DECISIONS=WHY-NOT. Propagating the
+*consequence* to each is legitimate; **copying the same sentence into two is the drift this skill exists to
+prevent.** The effect verb drives what to touch:
+
+- If it **CREATES/CONSTRAINS/MOVES/PROMOTES/KILLS a feature** → update the `Ref`'s ROADMAP row (status,
+  milestone, `Decision` column) or move it to the Graveyard with this `D-NN`.
+- If it **reclassifies features across milestones/paths** → delegate the change-management reasoning to
+  `bmad-correct-course` (the skill keeps the append-only entry, the graveyard discipline, and the routing).
+- If it **changed a requirement** → the PRD FR is updated by `bmad-prd`.
+- **Ask explicitly: does this touch the spine?** If yes, `bmad-agent-architect` **authors** the architecture
+  entry in the right section with the right anchored/movable tag + this `D-NN` (the skill guarantees it
+  *points*, doesn't restate). Omitting a needed spine footprint is a governance bug.
+
+**CHECKPOINT before editing:** list, pillar by pillar, every file + row/FR/section, *what kind of fact* each
+gets and *why it's distinct*, and the explicit spine answer. If the same sentence appears in two pillars,
+rewrite until each has its own fact. Wait for OK.
+
+## 6 · Verify & close
+
+Re-read every touched zone: append-only intact, `history/` intact, no duplication, spine footprint
+consistent with the answer above, references resolve both ways (grep the id/Ref), absolute dates, correct
+per-doc language. Report file-by-file with clickable `path:line`; recommend a full `governance-check`.

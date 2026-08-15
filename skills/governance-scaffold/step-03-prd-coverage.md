@@ -23,7 +23,9 @@ so the `Ref`⇄FR join is complete and honest in both directions.
 
 ## 2 · Migrate / author the FRs
 
-For each feature (`Ref`) and each subsystem it touches, write one FR in that subsystem's PRD:
+Use the bundled template `assets/templates/prd-subsystem.template.md` for each subsystem PRD (it carries the
+reading-key, the FR + tag format, the NFR section, and the local coverage table). For each feature (`Ref`)
+and each subsystem it touches, write one FR in that subsystem's PRD:
 
 - **Id:** `<PREFIX>-FRn` (namespaced; apply the old→new mapping from step-01 in merge mode, keeping the old
   id as an alias on first migration).
