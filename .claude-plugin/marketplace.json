@@ -1,0 +1,17 @@
+{
+  "name": "bmad-governance-kit",
+  "owner": {
+    "name": "Oscar Valls"
+  },
+  "description": "Governance-layer scaffolding + operating commands for BMAD-planned projects.",
+  "plugins": [
+    {
+      "name": "bmad-governance-kit",
+      "source": "./",
+      "description": "Scaffold and operate a four-pillar governance layer on any BMAD-planned project.",
+      "version": "0.1.0",
+      "license": "MIT",
+      "keywords": ["governance", "bmad", "planning"]
+    }
+  ]
+}

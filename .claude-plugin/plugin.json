@@ -1,0 +1,22 @@
+{
+  "name": "bmad-governance-kit",
+  "displayName": "BMAD Governance Kit",
+  "version": "0.1.0",
+  "description": "Scaffold and operate a durable four-pillar governance layer on any BMAD-planned project — a registry with a coverage matrix, an append-only decision log, an architecture spine with anchored/movable tags, plus the commands that keep it drift-free.",
+  "author": {
+    "name": "Oscar Valls"
+  },
+  "homepage": "https://github.com/osscarvalls/bmad-governance-kit",
+  "repository": "https://github.com/osscarvalls/bmad-governance-kit",
+  "license": "MIT",
+  "keywords": [
+    "governance",
+    "bmad",
+    "planning",
+    "roadmap",
+    "decisions",
+    "architecture",
+    "skills"
+  ],
+  "skills": "./skills/"
+}
