@@ -1,8 +1,8 @@
 {
   "name": "bmad-governance-kit",
   "displayName": "BMAD Governance Kit",
-  "version": "0.2.0",
-  "description": "Scaffold and operate a durable four-pillar governance layer on any BMAD-planned project — a registry with a coverage matrix, an append-only decision log, an architecture spine with anchored/movable tags, and a self-describing constitution — plus ten commands (scaffold + intake, spec, feature-intake, decision-record, tech-scout, governance-check, epics-projection, test-strategy, fix) that keep it drift-free. Ships faithful pillar templates, controlled vocabularies, and an operating contract.",
+  "version": "0.3.0",
+  "description": "Scaffold and operate a durable four-pillar governance layer on any BMAD-planned project — a registry (narrative ROADMAP + release-calendar.yaml as the single structured feature⇄FR join, written via calendar-ops.py and schema-validated), an append-only decision log, an architecture spine with anchored/movable tags, and a self-describing constitution — plus ten commands (scaffold + intake, spec, feature-intake, decision-record, tech-scout, governance-check, epics-projection, test-strategy, fix) that keep it drift-free. Ships faithful pillar templates, the calendar tooling, controlled vocabularies, and an operating contract.",
   "author": {
     "name": "Oscar Valls"
   },
@@ -16,7 +16,7 @@
     "roadmap",
     "decisions",
     "architecture",
-    "coverage-matrix",
+    "release-calendar",
     "anti-drift",
     "skills"
   ],

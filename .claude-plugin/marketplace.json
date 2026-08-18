@@ -9,7 +9,7 @@
       "name": "bmad-governance-kit",
       "source": "./",
       "description": "Scaffold and operate a four-pillar governance layer on any BMAD-planned project.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "license": "MIT",
       "keywords": ["governance", "bmad", "planning"]
     }
