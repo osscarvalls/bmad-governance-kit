@@ -1,0 +1,45 @@
+# release-calendar.yaml — the single structured source of the join release<->feature<->FR/NFR<->epic<->story.
+# Shape: config{prd_dir, subsystems{<NS>: <prd-file>}, milestones[]} + releases.<release>.{status, features.<feature>{...}, enablers.<enabler>{...}}; each entry = {milestone, frs[], nfrs[], epics[], stories[]} + optional {status, decisions[]}.
+# features = readable business capabilities (agenda, billing, external-client-infra); enablers = technical work with no user-facing story. Business granularity, NOT FRs. No dates: they are estimated from the stories.
+# Statuses: backlog | in-progress | done | unscheduled | blocked | killed (killed => decisions[] with its D-NN; the Graveyard is a VIEW derived from here + DECISIONS).
+# Write ONLY via calendar-ops.py. Validate: python3 validate-release-calendar.py. Do NOT add any further comments (one header block only).
+config:
+  prd_dir: prds
+  subsystems:
+    <SUBA>: prd-<suba>.md
+    <SUBB>: prd-<subb>.md
+    <SUBC>: prd-<subc>.md
+    <SUBD>: prd-<subd>.md
+  milestones: [<Milestone-0>, <Milestone-1>, <Milestone-Hypothesis>]
+releases:
+  <release-0>:
+    status: in-progress
+    features:
+      <feature-name>:
+        milestone: <Milestone-0>
+        frs: [<SUBA>-FR1, <SUBD>-FR2]
+        nfrs: [NFR-<CODE>]
+        epics: [epic-<m0>-1]
+        stories: [<M0>-1.1, <M0>-1.2]
+      <another-feature>:
+        milestone: <Milestone-0>
+        frs: [<SUBB>-FR5]
+        nfrs: []
+        epics: [epic-<m0>-2]
+        stories: [<M0>-2.1]
+    enablers:
+      <enabler-name>:
+        milestone: <Milestone-0>
+        frs: [<SUBA>-FR3]
+        nfrs: []
+        epics: [epic-<m0>-1]
+        stories: [<M0>-1.3]
+  <release-1>:
+    status: backlog
+    features:
+      <future-feature>:
+        milestone: <Milestone-1>
+        frs: [<SUBA>-FR27, <SUBC>-FR6]
+        nfrs: []
+        epics: []
+        stories: []

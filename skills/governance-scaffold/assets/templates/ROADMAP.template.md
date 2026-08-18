@@ -1,19 +1,25 @@
 ---
-title: "<Project> — Product Roadmap (source of truth)"
+title: "<Project> — Product Roadmap (narrative: what + order)"
 status: <draft-vN | living>
 created: <YYYY-MM-DD>
 governance: |
-  SINGLE SOURCE OF TRUTH for "what exists and when". Not how (→ PRDs), not why (→ DECISIONS).
-  One fact, one place.
+  The NARRATIVE half of the ROADMAP pillar: what exists and in what order, in prose.
+  The structured JOIN (feature ⇄ FR/NFR ⇄ epic ⇄ story) lives in release-calendar.yaml, not here.
+  Not how (→ PRDs), not why-not (→ DECISIONS). No dates, no FR tables, no coverage matrix.
+  No skill mutates this file: a human edits it (or the agent proposes an edit the human approves).
 ---
 
 # <Project> — Product Roadmap
 
 ## How to read this (the model)
-- **Feature** = a business capability, vertical. 1 row = 1 `Ref` = 1 milestone. The only thing with "one single place".
-- **Layer** = the slice of a feature inside **one subsystem**. The *how* of each layer lives in that subsystem's PRD, tagged with the `Ref`.
-- **Milestone** = a grouping of features with a goal — a column + heading, not a folder.
-- **`Ref`** = the stable join key stitching a roadmap row to its layers in the PRDs.
+- **Feature** = a business capability, vertical. Named by a **`Ref`** (kebab-case handle) that is also its
+  entry key in `release-calendar.yaml`. That handle is the join key stitching the feature to its layers.
+- **Layer** = the slice of a feature inside **one subsystem**. The *how* of each layer lives in that
+  subsystem's PRD, in an FR tagged `serves <Ref>`.
+- **Milestone** = a grouping of features with a goal — a heading here, not a folder.
+- **The join** — which FRs/NFRs/epics/stories a feature is built from — lives **only** in
+  `release-calendar.yaml`, written via `calendar-ops.py`, validated by `validate-release-calendar.py`. This
+  document carries the **order and the why**, in prose; it does not restate the join.
 
 ### The subsystems (the possible layers)
 | Subsystem | The question it owns | Boundary |
@@ -24,68 +30,37 @@ governance: |
 | **<SubD>** | <the one question> | <boundary> |
 
 ### Governance (the five anti-drift laws)
-1. **If it's not in this registry, it doesn't exist.**
-2. **ROADMAP says WHEN; PRDs say HOW; DECISIONS says WHY-NOT.** Edit two of three for one fact → duplicating.
-3. **New idea** → row `state=idea`, `milestone=Backlog` → triage → assign a milestone or **kill with a reason**.
-4. **Killed is not deleted or reopened** — Graveyard, with reason + `D-NN`.
-5. **`epics.md` is PROJECTED from a milestone** — regenerated, not a source.
-
-### States
-`idea` · `committed` · `committed (schema/scaffold — enforcement OFF)` · `blocked` · `hypothesis` · `frozen` · `deferred (gate)` · `killed`
-
----
-
-## Milestones
-| Milestone | Objective | State |
-|---|---|---|
-| **<Milestone-0>** | <one-line goal> | **Active (building)** |
-| **<Milestone-1>** | <one-line goal> | Next |
-| **<Milestone-Hypothesis>** | **HYPOTHESIS not committed.** <one-line vision> | Hypothesis |
+1. **If it's not in the registry, it doesn't exist.** Registry = this narrative + `release-calendar.yaml`.
+2. **ROADMAP says WHAT+ORDER; the calendar is the JOIN; PRDs say HOW; DECISIONS says WHY-NOT.** Write one
+   fact in two of them → duplicating. feature→milestone lives **only** in the calendar.
+3. **New idea** → the Backlog → triage → register in the calendar with a milestone or **kill with a reason**.
+4. **Killed is not deleted or reopened** — the Graveyard is a **derived view** (`status: killed` in the
+   calendar + the `D-NN` in DECISIONS).
+5. **`epics.md` is PROJECTED from a milestone** — regenerated, not a source; the projection writes
+   `epics[]`/`stories[]` back to the calendar.
 
 ---
 
-## <Milestone-0> · *Objective: <goal>*
-| Ref | Feature (JTBD) | Layers | State | Decision |
-|---|---|---|---|---|
-| <Ref-1> | <one-line JTBD> | <SubA>, <SubD> | committed | <D-NN> |
-| <ARCH-slug> | <one-line architectural capability> | <SubA> | committed | — |
-<!-- ARCH-*/INT-*/OPS-*/UX-*/LEG-* slugs are PROVISIONAL until a PRD gives them their FR(s). -->
+## Milestones (in order)
 
-## <Milestone-1> · *Objective: <goal>*
-| Ref | Feature (JTBD) | Layers | State | Decision |
-|---|---|---|---|---|
-| <Ref-N> | <one-line JTBD> | <SubA>, <SubB>, <SubD> | committed | <D-NN> |
+### <Milestone-0> · *Objective: <goal>*  — **Active (building)**
+<One or two paragraphs, in prose: what this milestone delivers, the features it groups and why, and the
+order they come in. Name features by their `Ref` handle (e.g. `billing`, `agenda-sync`). No FR lists, no
+tables — those are in the calendar and the PRDs.>
 
----
+### <Milestone-1> · *Objective: <goal>*  — Next
+<Prose: the next milestone's intent and the features it introduces, in sequence.>
 
-## Coverage Matrix — feature → layers → FRs
-<!-- The navigable chain both ways. One sub-table per milestone. Cell = the FR(s) that subsystem
-     contributes; `·` = no layer; *(reads)*/*(intake)* = participates but no own FR. -->
-
-### <Milestone-0>
-| Ref | <SubA> | <SubB> | <SubC> | <SubD> |
-|---|---|---|---|---|
-| <Ref-1> | <SUBA-FR6,8> | · | · | <SUBD-FR1,2> |
-| <ARCH-slug> | <SUBA-FR1> | · | · | · |
-
-### <Milestone-1>
-| Ref | <SubA> | <SubB> | <SubC> | <SubD> |
-|---|---|---|---|---|
-| <Ref-N> | <SUBA-FR27> | <SUBB-FR46> | <SUBC-FR6> | <SUBD-FR27> |
+### <Milestone-Hypothesis> · *Objective: <vision>*  — **Hypothesis (not committed)**
+<Prose: an alternative path that only builds if later data validates it. State clearly it is a hypothesis.>
 
 ---
 
-## 🪦 Graveyard (killed — not reopened)
-| What | Why it died | Decision |
-|---|---|---|
-| <killed thing> | <one-line reason> | <D-NN> |
+## Backlog (pre-triage ideas)
+<Prose or a short list of raw ideas awaiting triage. If the project runs `decision-intake`, this is the
+intake RADAR; each idea is registered into the calendar or killed with a reason once triaged. Additive,
+never rewritten in place.>
 
-### Deferred (valid, undated — icebox)
-<item> · <item>.
-
----
-
-## Backlog (unassigned)
-> <Dated intake note (`<YYYY-MM-DD>`): capture · verdict · routing — additive, never rewritten.>
-
-_(empty — every new idea enters here before triage)_
+## Graveyard (derived — do not maintain by hand)
+> The Graveyard is a **view**: every calendar entry at `status: killed` + the `D-NN` in DECISIONS that
+> closed it. It is not a table kept here. Killed features are never reopened.

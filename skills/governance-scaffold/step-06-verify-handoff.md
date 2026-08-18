@@ -17,21 +17,23 @@ for an adversarial lens. If BMAD is not available, run this read-only pass yours
 
 Check each invariant and record PASS / WARN / FAIL with the specific offenders:
 
-1. **Ref ⇄ FR (both directions).** Every registry `Ref` has ≥1 FR in the Coverage Matrix; every FR
-   `serves` a real `Ref`. No orphans either way.
+1. **Ref ⇄ FR (both directions).** Run `python3 {gov}/validate-release-calendar.py` — it must be **PASS**
+   (every calendar FR exists in its PRD; every `(Ref, FR)` pair is confirmed by the PRD `serves`; every PRD
+   `serves <Ref>` resolves to a calendar entry). Then eyeball for **orphan features** (a calendar entry with
+   empty `frs[]`), which the validator does not flag.
 2. **One place per fact.** No sentence duplicated across two pillars (a feature described in both ROADMAP
-   and a PRD statement; an FR's text copied into architecture). Consequences propagated by shared `Ref`/
-   `D-NN` are fine; copied text is not.
+   and a PRD statement; an FR's text copied into architecture; the join kept anywhere but the calendar).
+   Consequences propagated by shared `Ref`/`D-NN` are fine; copied text is not.
 3. **Namespacing.** Every FR is `<PREFIX>-FRn` for a real subsystem; no stray global `FR-n`; provisional
    slugs from step-01 all resolved (promoted, moved, or parked with a reason).
-4. **DECISIONS integrity.** Append-only shape; every Graveyard row has a `D-NN`; every superseded entry has
-   a forward pointer; no speculative decision the plan never made.
+4. **DECISIONS integrity.** Append-only shape; every killed calendar entry has a `D-NN` in its `decisions[]`;
+   every superseded entry has a forward pointer; no speculative decision the plan never made.
 5. **Architecture tags.** Every structural decision carries `[milestone · anchored|movable · serves <Ref>]`;
    anchored items are actually backbone; architecture restates no FR text.
-6. **Registry completeness.** Everything the plan scopes appears somewhere (a milestone table, the Backlog,
-   or the Graveyard) — nothing planned is "loose".
-7. **Constitution accuracy.** GOVERNANCE.md's pillar paths, subsystem list, and pointers match what's on
-   disk.
+6. **Registry completeness.** Everything the plan scopes appears somewhere (a milestone in the calendar, the
+   narrative Backlog, or killed with a `D-NN`) — nothing planned is "loose".
+7. **Constitution accuracy.** GOVERNANCE.md's pillar paths (including `release-calendar.yaml` + the two
+   scripts), subsystem list, and pointers match what's on disk.
 
 ## 2 · Resolve loose ends
 
@@ -45,8 +47,8 @@ Give the user a compact close-out:
 
 - **Coherence report:** PASS/WARN/FAIL per invariant, with offenders.
 - **What was written:** the four pillars + GOVERNANCE.md + supporting stores, each with its path.
-- **Traceability sample:** pick one `Ref` and show the full chain — `Ref` (ROADMAP) → its FRs (PRDs) → its
-  architecture tag → its `D-NN` — as proof the join closes end to end.
+- **Traceability sample:** pick one `Ref` and show the full chain — the calendar entry (`frs[]`) → its FRs
+  (PRDs, each `serves <Ref>`) → its architecture tag → its `D-NN` — as proof the join closes end to end.
 - **Open gaps:** anything the plan under-specified that governance surfaced (orphans, un-phased features,
   decisions never written down). These are the real value of the scaffold — the plan's blind spots, now
   visible.
@@ -58,6 +60,7 @@ Give the user a compact close-out:
 
 ## Done
 
-The project now has a governance layer: a registry that makes "loose features" impossible, a coverage matrix
-that keeps requirements traceable, an append-only decision log that never loses why-not, an architecture doc
-that knows its backbone, and a constitution that states the rules. Stop here.
+The project now has a governance layer: a registry (narrative + `release-calendar.yaml`) that makes "loose
+features" impossible, a schema-validated join that keeps requirements traceable, an append-only decision log
+that never loses why-not, an architecture doc that knows its backbone, and a constitution that states the
+rules. Stop here.

@@ -9,28 +9,51 @@ forgets its own backbone. This kit installs the missing layer — a small, opini
 
 | Pillar | Owns | Never |
 |---|---|---|
-| **ROADMAP** | **WHAT + WHEN** — a feature registry (each feature a stable `Ref`), milestones, the Coverage Matrix (`Ref`⇄FR), the Backlog, the Graveyard. | explains *how* or *why* |
-| **PRD(s)** | **HOW — testable** — functional requirements, namespaced per subsystem (`<SUB>-FRn`), each serving a `Ref`; NFRs in their own section. | holds implementation (that's architecture) |
+| **ROADMAP** | **WHAT + ORDER + the join.** Two artifacts: a **narrative `ROADMAP.md`** (milestones → features in prose: the what/why and the sequence; no dates, no FR tables) and **`release-calendar.yaml`** — the single *structured* source of the join (release → feature/enabler + milestone → FRs/NFRs → epics → stories, with status + `decisions[]` per entry). | explains *how* or *why-not*; stores dates (they are estimated from the stories) |
+| **PRD(s)** | **HOW — testable** — functional requirements, namespaced per subsystem (`<SUB>-FRn`), each declaring the feature it `serves`; NFRs in their own section. | holds implementation (that's architecture); keeps its own coverage table |
 | **DECISIONS** | **WHY-NOT** — an append-only log of closed decisions (`D-NN`) with forward supersede/reframe pointers. | rewrites or deletes a closed entry |
 | **architecture** | **HOW — structural** — the invariant spine, per-subsystem structure, milestone deltas; every decision tagged `[milestone · anchored\|movable · serves <Ref>]`. | restates the other pillars — it points |
 
-**The join key is the `Ref`.** A feature (ROADMAP) ⇄ its requirements (one per subsystem, in the PRDs) ⇄
-the structural *how* (architecture) ⇄ the *why-not* (a `D-NN` in DECISIONS). `grep` a `Ref` across the PRDs
-and you reach every layer it touches. Mnemonic: **ROADMAP = WHEN · PRD = HOW-testable · architecture =
-HOW-structural · DECISIONS = WHY-NOT.** If a change makes you write the *same fact* in two of the four, stop
-— you are duplicating. (Propagating a *consequence* — a status change in ROADMAP, a new FR in a PRD, a spine
-decision in architecture — is not duplication: those are distinct facts joined by the `Ref`/`D-NN`.)
+**The join key is the `Ref`** — the feature handle: its kebab-case business name, which is *also* its entry
+key in `release-calendar.yaml`. A feature (a calendar entry, named in the narrative ROADMAP) ⇄ its
+requirements (one FR per subsystem, in the PRDs, each `serves <Ref>`) ⇄ the structural *how* (architecture) ⇄
+the *why-not* (a `D-NN` in DECISIONS). The join lives in **exactly one place** — `release-calendar.yaml` —
+and the PRD's `serves <Ref>` is the FR-side declaration that a **schema validator** cross-checks. Mnemonic:
+**ROADMAP = WHAT+ORDER · calendar = the JOIN · PRD = HOW-testable · architecture = HOW-structural · DECISIONS
+= WHY-NOT.** If a change makes you write the *same fact* in two pillars, stop — you are duplicating.
+(Propagating a *consequence* — a status in the calendar, a new FR in a PRD, a spine decision in architecture
+— is not duplication: those are distinct facts joined by the `Ref` / `D-NN`.)
+
+## Why a YAML and not a Markdown table (the determinism win)
+
+The old model kept the `feature ⇄ FR` join as a **Coverage Matrix table**, replicated across the ROADMAP and
+every PRD, maintained by hand via fragile string-match, with no declared owner. This model removes that
+whole failure class:
+
+- The join lives **only** in `release-calendar.yaml`. The Coverage Matrix disappears from the ROADMAP and
+  the PRDs.
+- The calendar is **written only through `calendar-ops.py`** (a structured operation), never by editing the
+  yaml by hand or by string-match.
+- The join is **validated by schema** with `validate-release-calendar.py`: every FR in the calendar exists
+  in its PRD, every `(Ref, FR)` pair is confirmed by the PRD's `serves`, and every PRD `serves <Ref>` resolves
+  to a real calendar entry. One source, one validation — not two hand-kept tables.
+- The **narrative `ROADMAP.md`** carries order and rationale for humans; **no skill mutates it** (a human
+  edits it, or the agent with the human's OK). Machines read the yaml; humans read the prose.
 
 ## The five anti-drift laws (they are law)
 
-1. **If it isn't in the registry, it doesn't exist.** A "loose" feature is a contradiction in terms.
-2. **One truth, one place.** Never write the same fact into two pillars.
-3. **A new idea enters as `state=idea`, `milestone=Backlog`** — then triage (which subsystem? passes the
-   small-team filter? clashes with a live decision? anchored or movable?) → assign a milestone **or kill it
+1. **If it isn't in the registry, it doesn't exist.** A "loose" feature is a contradiction in terms. The
+   registry = the narrative `ROADMAP.md` (order/why) + `release-calendar.yaml` (the join).
+2. **One truth, one place.** ROADMAP=WHAT+ORDER · calendar=the JOIN · PRD=HOW-testable ·
+   architecture=HOW-structural · DECISIONS=WHY-NOT. Never write the same fact into two pillars.
+   feature→milestone lives **only** in the calendar.
+3. **A new idea enters the Backlog** — then triage (which subsystem? passes the small-team filter? clashes
+   with a live decision? anchored or movable?) → register it in the calendar with a milestone **or kill it
    with a reason**.
-4. **What is killed is never deleted or reopened** — it lives in the Graveyard with its reason + the `D-NN`
-   that closed it.
-5. **The epics list is PROJECTED from a milestone** and regenerable — never a source of truth.
+4. **What is killed is never deleted or reopened.** The **Graveyard is a derived view**: the `D-NN` that
+   kills it in DECISIONS + the entry set to `status: killed` (with `decisions[]`) in the calendar.
+5. **The epics list is PROJECTED from a milestone** and regenerable — never a source of truth. The
+   projection writes `epics[]`/`stories[]` back into the calendar.
 
 ## Invariant patterns
 
@@ -39,10 +62,11 @@ decision in architecture — is not duplication: those are distinct facts joined
   separate codebases**.
 - **`anchored` vs `movable`** — *anchored* = backbone/irretrofittable (moving it costs a retrofit → a
   conscious decision); *movable* = reschedulable freely. architecture.md is the home of the tag.
-- **One FR per layer.** A feature touching three subsystems → three FRs in three PRDs, all with the same
+- **One FR per layer.** A feature touching three subsystems → three FRs in three PRDs, all serving the same
   `Ref`. An NFR (latency/residency/security/observability) → the PRD's NFR section, never an FR.
-- **Provisional slugs** (`ARCH-*`/`INT-*`/`OPS-*`/`UX-*`/`LEG-*`) are placeholders until the owning
-  subsystem's PRD gives them a real FR.
+- **Readable handles.** A feature's `Ref` is its **kebab-case business name** — the calendar entry key
+  (`billing`, `agenda-sync`). Legacy short slugs (`ARCH-*`/`INT-*`/`LEG-*`) stay valid `Ref`s in the `serves`
+  clauses that already use them.
 - **Milestones, not folders.** Editions/tiers/phases are *packagings* of the same subsystems — one platform
   that deepens.
 
@@ -65,13 +89,13 @@ quality with BMAD present.
      product-spec  ◄──────┼──────►  tech-scout        (from-zero product line / new technology)
           │               │
           ▼               ▼
-     feature-intake   (govern: Ref + one FR per layer + Coverage Matrix)
+     feature-intake   (govern: calendar entry + one FR per layer, join validated by schema)
           │
           ▼
-     governance-check   (read-only coherence gate)
+     governance-check   (read-only coherence gate; runs validate-release-calendar.py)
           │
           ▼
-     epics-projection   (project the milestone's stories — regenerable)
+     epics-projection   (project the milestone's stories; write epics[]/stories[] back to the calendar)
           │
           ▼
      test-strategy   (ONCE per milestone: suite + gates → test standards)
@@ -97,5 +121,5 @@ architecture is a governance bug.
   turns out to be new capability or a wrong spec, it stops and routes back through governance.
 
 See [`controlled-vocabularies.md`](controlled-vocabularies.md) for the status vocabulary, the architecture
-tag grammar, and the decision effect-verbs; see [`operating-contract.md`](operating-contract.md) for the
-contract every skill in the kit obeys.
+tag grammar, the calendar entry shape, and the decision effect-verbs; see
+[`operating-contract.md`](operating-contract.md) for the contract every skill in the kit obeys.

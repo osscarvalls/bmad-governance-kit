@@ -31,15 +31,15 @@ Set `{plan}` = the directory (or set) where these live.
 
 ## 2 · Detect existing governance (merge vs greenfield)
 
-Check whether a governance layer (or fragments of one) already exists: a `ROADMAP.md`/registry with a
-feature table, a `DECISIONS.md`, an architecture doc with `anchored`/`movable` tags, a coverage matrix, a
-`GOVERNANCE.md`/constitution. Decide the **mode**:
+Check whether a governance layer (or fragments of one) already exists: a `ROADMAP.md`/registry, a
+`release-calendar.yaml` (or any feature⇄FR join, even an old-style coverage matrix), a `DECISIONS.md`, an
+architecture doc with `anchored`/`movable` tags, a `GOVERNANCE.md`/constitution. Decide the **mode**:
 
 - **greenfield** — no governance yet. Scaffold all four pillars from the plan.
 - **merge** — some governance exists. **Extend, never clobber.** Map what's present to the four pillars,
-  find the gaps (a registry with no coverage matrix; a PRD with un-namespaced FRs; decisions kept as prose
-  in the brief with no append-only log), and scaffold **only the missing structure**, folding existing
-  content in.
+  find the gaps (a registry with no structured join; a hand-kept coverage matrix to migrate into
+  `release-calendar.yaml`; a PRD with un-namespaced FRs; decisions kept as prose in the brief with no
+  append-only log), and scaffold **only the missing structure**, folding existing content in.
 
 ## 3 · Decide where governance lives
 

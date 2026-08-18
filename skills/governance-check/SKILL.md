@@ -1,6 +1,6 @@
 ---
 name: governance-check
-description: READ-ONLY anti-drift auditor of a governance layer's four-pillar graph — verifies every Ref⇄FR (both directions, no orphans), no duplicated facts across pillars, correct FR namespacing, an append-only/coherent DECISIONS log, present anchored/movable architecture tags, a coherent Graveyard, and an accurate constitution. It WRAPS bmad-check-implementation-readiness (spec completeness) plus bmad-review-adversarial-general / bmad-review-edge-case-hunter (adversarial lens) and adds only the governance invariants, composing them into ONE PASS/WARN/FAIL report. It NEVER auto-fixes. Use when the user says "check the governance", "audit coherence", "governance check", or before a checkpoint / before projecting epics. Requires a governance layer (see governance-scaffold); reads GOVERNANCE.md.
+description: READ-ONLY anti-drift auditor of a governance layer's four-pillar graph — runs validate-release-calendar.py to prove every Ref⇄FR closes (both directions, no orphans), checks no duplicated facts across pillars, correct FR namespacing, an append-only/coherent DECISIONS log, present anchored/movable architecture tags, a coherent derived Graveyard, and an accurate constitution. It WRAPS bmad-check-implementation-readiness (spec completeness) plus bmad-review-adversarial-general / bmad-review-edge-case-hunter (adversarial lens) and adds only the governance invariants, composing them into ONE PASS/WARN/FAIL report. It NEVER auto-fixes. Use when the user says "check the governance", "audit coherence", "governance check", or before a checkpoint / before projecting epics. Requires a governance layer (see governance-scaffold); reads GOVERNANCE.md.
 ---
 
 # governance-check
@@ -33,16 +33,19 @@ intake layer **whole** — a half-read cross produces false FAILs.
 
 ## The delta invariants (PASS / WARN / FAIL each, with `path:line` + the owning skill for the fix)
 
-1. **Coverage.** Every `Ref` → ≥1 FR; every FR → a real `Ref` (a live FR serving a graveyard-only Ref =
-   FAIL; a `serves` token that isn't a ROADMAP Ref = WARN). Italic/NFR cells covered without a fake FR;
-   provisional slugs either have FRs or are explicitly marked provisional/hypothesis; **the Coverage Matrix
-   mirrors the PRDs both ways** (a cell contradicting a PRD = FAIL); Backlog empty (WARN if ideas linger).
+1. **Coverage.** Run `validate-release-calendar.py` — it must be **PASS** (every calendar FR exists in its
+   PRD; every `(Ref, FR)` pair confirmed by the PRD `serves`; every PRD `serves <Ref>` resolves to a calendar
+   entry). Carry its verdict into the report. Then the checks the validator can't make: every calendar entry
+   has ≥1 FR (empty `frs[]` = orphan feature = FAIL); a live FR serving a killed-only entry = FAIL;
+   coverage-gap entries explicitly marked provisional/hypothesis; the narrative Backlog is pre-triage only
+   (WARN if a committed feature lingers there instead of the calendar).
 2. **Decisions + intake.** No two live decisions contradict without a supersede; every SUPERSEDED has a
-   paired pointer to an existing target; **reclassify ≠ supersede** (reclassified-but-live is correct);
-   nothing in the Graveyard is simultaneously live; every killed item cites reason + id; append-only intact
-   (contiguous numbering, no overwrite signals, ranges match the header `sources:`); the ROADMAP `Decision`
-   column resolves. **Plus intake coherence:** RADAR ⇄ dossiers aligned both ways, no zombie radar-dossiers,
-   the intake-graveyard well-formed and not overlapping the ROADMAP Graveyard.
+   paired pointer to an existing target; **reclassify ≠ supersede** (reclassified-but-live is correct); no
+   calendar entry is both `status: killed` and live elsewhere; every killed entry cites a `D-NN` in its
+   `decisions[]`; append-only intact (contiguous numbering, no overwrite signals, ranges match the header
+   `sources:`); every `decisions[]` id resolves to a real entry. **Plus intake coherence:** RADAR ⇄ dossiers
+   aligned both ways, no zombie radar-dossiers, the intake-graveyard well-formed and not overlapping the
+   derived Graveyard.
 3. **Architecture.** Every spine-touching feature has a footprint (missing = governance bug); every decision
    carries the full three-field tag; `serves <FRs>` resolve; the milestone-delta section is consistent with
    the ROADMAP milestones and marks backbone transitions; **nothing anchored moved silently without a
@@ -50,9 +53,10 @@ intake layer **whole** — a half-read cross produces false FAILs.
 4. **Naming + duplication.** Implementation names don't leak to the product surface; brand/domain terms used
    consistently; exact milestone names + correct hypothesis/frozen/gate framing; subsystem boundaries not
    double-claimed; **the duplication check** — heuristically scan for the *same fact/rationale* copied across
-   two pillars (why-not outside the log, what/when restated in architecture/PRD, how-structural copied into a
-   PRD, two docs keeping their own copy of one table). Operative test: *"if changing it means editing the
-   same sentence in two places, it's duplication."* Plus `history/` immutability.
+   two pillars (why-not outside the log, what/order restated in architecture/PRD, how-structural copied into a
+   PRD, the feature⇄FR join kept anywhere but the calendar, feature→milestone restated outside the calendar).
+   Operative test: *"if changing it means editing the same sentence in two places, it's duplication."* Plus
+   `history/` immutability and the one-header-comment rule on the governance yaml.
 
 ## Compose the report
 

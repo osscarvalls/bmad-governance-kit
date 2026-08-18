@@ -73,11 +73,11 @@ entry:
 
 - Number them `D-01`, `D-02`, … in the order the plan made them (use the plan's dates where known; absolute
   dates only).
-- For each Graveyard row from step-02, ensure there is a `D-NN` that closed it, and fill the Graveyard's
-  `Decision` column with that id.
+- For each feature seeded `status: killed` in step-02, ensure there is a `D-NN` that closed it, and attach
+  it with `python3 {gov}/calendar-ops.py add-decision <ref> <D-NN>` (the Graveyard is derived from this).
 - Where a decision has a structural consequence, make sure its architecture tag references its `D-NN`, and
-  where it scoped a feature, fill the registry row's `Decision` column. This is **propagation**, not
-  duplication — the same `D-NN` joins the three pillars.
+  where it scoped a feature, attach the id to that calendar entry (`add-decision <ref> <D-NN>`). This is
+  **propagation**, not duplication — the same `D-NN` joins the pillars.
 
 > **Do not manufacture decisions from your own reasoning.** Only record what the plan actually decided (or
 > what the user explicitly confirms now). A speculative `D-NN` corrupts an append-only log and can only be

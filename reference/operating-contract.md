@@ -37,11 +37,21 @@ decision log. `governance-scaffold` is the only skill that creates fresh pillars
 existing ones. `epics-projection` writes only the projection. `fix` writes only code/tests. A skill that is
 about to write outside its scope has found a routing bug, not a task.
 
+**The calendar is written only through `calendar-ops.py`.** `release-calendar.yaml` (the structured half of
+the ROADMAP pillar) is **never hand-edited and never mutated by string-match** — every write is a structured
+`calendar-ops.py` operation, and every write is followed by `validate-release-calendar.py` (which must stay
+PASS). The **narrative `ROADMAP.md`** is not machine-mutated at all: a human edits it, or the agent proposes
+the edit and the human approves. A skill about to edit either the yaml by hand or the narrative ROADMAP
+without human sign-off has found a routing bug.
+
 ## Universal conventions
 
 - **`path:line` citations** — cite files as clickable `path:line`, never paraphrase a location.
 - **Absolute dates** (`2026-08-15`), never relative ("last week").
-- **Reference, don't restate** — cite the `Ref`/`FR`/`D-NN`, don't copy its content.
+- **Reference, don't restate** — cite the feature handle / `FR` / `D-NN`, don't copy its content.
+- **One comment block in governance yaml** — a project-owned governance yaml (`release-calendar.yaml` and
+  equivalents) carries **one** header comment (description + legend) and **zero** inline comments; the
+  why lives in git / DECISIONS. (This does not apply to third-party / CI / infra yaml.)
 - **Affirmative · timeless · additive** — durable knowledge states what *is*, not what isn't; avoid claims
   that expire. When state changes, add or supersede.
 - **Talk to humans in names, not codes** — in chat/briefings/reports, name things in plain language; put a

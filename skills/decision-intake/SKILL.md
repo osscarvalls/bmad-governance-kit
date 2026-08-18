@@ -88,7 +88,8 @@ routes:
 
 A **promoted dossier is archived to `history/`.** A RADAR dossier without a named open-question + an
 assignment-with-owner is a **zombie** and the session doesn't close. **Graveyard frontier:** the boundary
-between the intake-graveyard and the ROADMAP-graveyard is *"has a row in the registry"* — no double-burial.
+between the intake-graveyard and the (derived) registry Graveyard is *"has an entry in the calendar"* — no
+double-burial.
 
 ## Report
 

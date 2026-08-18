@@ -18,15 +18,19 @@ key, the `Ref`.
 
 | Pillar | Path | Owns |
 |---|---|---|
-| **ROADMAP** | `<path/to/ROADMAP.md>` | **WHAT + WHEN** — the feature registry (`Ref`), milestones, the Coverage Matrix, the Backlog, the Graveyard. |
-| **PRD(s)** | `<path/to/prds/>` | **HOW — testable** — FRs namespaced per subsystem (`<SUB>-FRn`), each serving a `Ref`; NFRs in their own section. |
+| **ROADMAP** | `<path/to/ROADMAP.md>` + `<path/to/release-calendar.yaml>` | **WHAT + ORDER + the join.** Narrative `ROADMAP.md` (milestones → features in prose, order + why; no dates, no FR tables) + `release-calendar.yaml` (the single structured join: feature/enabler → milestone → FRs/NFRs → epics → stories). |
+| **PRD(s)** | `<path/to/prds/>` | **HOW — testable** — FRs namespaced per subsystem (`<SUB>-FRn`), each declaring the `Ref` it `serves`; NFRs in their own section. |
 | **DECISIONS** | `<path/to/DECISIONS.md>` | **WHY-NOT** — an append-only log of closed decisions (`D-NN`). |
 | **architecture** | `<path/to/architecture.md>` | **HOW — structural** — the spine, per-subsystem structure, milestone deltas; every decision tagged `[milestone · anchored\|movable · serves <Ref>]`. |
 
-**The join key.** A feature (`Ref` in ROADMAP) ⇄ its FRs (one per subsystem, in the PRDs) ⇄ the structural
-*how* (architecture) ⇄ the *why-not* (`D-NN` in DECISIONS). `grep` a `Ref` across the PRDs → every layer it
-touches. Mnemonic: **ROADMAP = WHEN · PRD = HOW-testable · architecture = HOW-structural · DECISIONS =
-WHY-NOT.**
+**The join key.** A feature (a `<Ref>` entry in `release-calendar.yaml`, named in the narrative ROADMAP) ⇄
+its FRs (one per subsystem, in the PRDs, each `serves <Ref>`) ⇄ the structural *how* (architecture) ⇄ the
+*why-not* (`D-NN` in DECISIONS). The join lives **only** in the calendar; `grep` a `Ref` across the PRDs →
+every layer it touches. Mnemonic: **ROADMAP = WHAT+ORDER · calendar = the JOIN · PRD = HOW-testable ·
+architecture = HOW-structural · DECISIONS = WHY-NOT.**
+
+**The calendar is written only via `calendar-ops.py`** and validated by `validate-release-calendar.py` (both
+live next to `release-calendar.yaml`). Never hand-edit the yaml; never machine-mutate the narrative ROADMAP.
 
 ## 2 · The subsystems (the possible layers)
 
@@ -44,16 +48,18 @@ Each subsystem owns exactly one question; its FRs are namespaced with its prefix
 
 ## 3 · The five anti-drift laws (they are law)
 
-1. **If it isn't in the registry (ROADMAP), it doesn't exist.** A "loose" feature is a contradiction in terms.
-2. **One truth, one place.** ROADMAP=WHEN · PRD=HOW-testable · architecture=HOW-structural · DECISIONS=WHY-NOT.
-   Never write the same fact in two of them. (Propagating a *consequence* joined by a shared `Ref`/`D-NN` is
-   not duplication; copying the same text is.)
-3. **A new idea enters as `state=idea`, `milestone=Backlog`** — then triage (which subsystem? passes the
-   small-team filter? clashes with a live `D-NN`? anchored or movable?) → assign a milestone **or kill it
+1. **If it isn't in the registry, it doesn't exist.** Registry = narrative `ROADMAP.md` + `release-calendar.yaml`.
+2. **One truth, one place.** ROADMAP=WHAT+ORDER · calendar=the JOIN · PRD=HOW-testable ·
+   architecture=HOW-structural · DECISIONS=WHY-NOT. Never write the same fact in two of them. (Propagating a
+   *consequence* joined by a shared `Ref`/`D-NN` is not duplication; copying the same text is.)
+   feature→milestone lives **only** in the calendar.
+3. **A new idea enters the Backlog** — then triage (which subsystem? passes the small-team filter? clashes
+   with a live `D-NN`? anchored or movable?) → register it in the calendar with a milestone **or kill it
    with a reason**.
-4. **What is killed is never deleted or reopened** — it lives in the Graveyard with its reason + the `D-NN`
-   that closed it.
-5. **The epics list is PROJECTED from a milestone** and regenerable — never a source of truth.
+4. **What is killed is never deleted or reopened** — the **Graveyard is a derived view**: `status: killed`
+   in the calendar (with `decisions[]`) + the `D-NN` in DECISIONS that closed it.
+5. **The epics list is PROJECTED from a milestone** and regenerable — never a source of truth; the
+   projection writes `epics[]`/`stories[]` back to the calendar.
 
 ## 4 · Invariant patterns
 
@@ -79,8 +85,13 @@ Each subsystem owns exactly one question; its FRs are namespaced with its prefix
 - **Affirmative · timeless · additive** durable knowledge — states what *is*, not what isn't; when state
   changes, add or supersede.
 - **Reference, don't restate** — cite the `Ref`/`FR`/`D-NN`.
-- **Graveyard = reason + `D-NN` only** — the killed is not re-argued.
-- **FR namespacing per subsystem** — never a global `FR-1..N` sequence.
+- **The calendar is written only via `calendar-ops.py`** and validated by `validate-release-calendar.py`
+  (must stay PASS). Never hand-edit `release-calendar.yaml`; never machine-mutate the narrative `ROADMAP.md`.
+- **One comment block in governance yaml** — `release-calendar.yaml` (and equivalents) carries one header
+  comment (description + legend) and zero inline comments; the why lives in git / DECISIONS.
+- **Graveyard = derived** — `status: killed` in the calendar + the `D-NN`; not re-argued, not a hand table.
+- **FR namespacing per subsystem** — never a global `FR-1..N` sequence; the prefixes + PRD paths are declared
+  in `release-calendar.yaml`'s `config.subsystems`.
 - **Naming discipline** — implementation names never leak into product-surface docs; brand/domain terms are
   named exactly, not paraphrased away.
 

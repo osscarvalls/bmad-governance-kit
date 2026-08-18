@@ -14,7 +14,8 @@ fr_namespace: <SUB>-FR
 ## 0. Purpose
 <!-- What this PRD is canonical for; who reads it downstream (epics-projection / build / test-strategy).
      Every FR keeps its [milestone · anchored|movable · serves <Ref>] tag + its · D-NN provenance;
-     the Coverage Matrix stitches each FR back to its ROADMAP Ref. Points to decisions, never restates. -->
+     the `serves <Ref>` clause is the FR-side of the join that release-calendar.yaml + its validator check.
+     Points to decisions, never restates. No coverage table lives here — the join is only in the calendar. -->
 
 > **Reading key.** Each FR carries `[milestone · anchored|movable · serves <ROADMAP Ref>]`.
 > *anchored* = backbone/irretrofittable; *movable* = product capability, reschedule freely.
@@ -55,11 +56,11 @@ fr_namespace: <SUB>-FR
 - <testable consequence>.
 
 ## 5. Non-functional requirements
-<!-- Cross-cutting NFRs go HERE as a section, NOT as FRs. Named NFR-<CODE> so the Coverage Matrix and
+<!-- Cross-cutting NFRs go HERE as a section, NOT as FRs. Named NFR-<CODE> so the calendar and
      tests can reference them. -->
 - **NFR-<CODE> — <name>.** <the constraint, testable>.
 
-## 6. Coverage (this subsystem's FRs → ROADMAP Ref)
-| <SUB>-FR | serves Ref | milestone |
-|---|---|---|
-| <SUB>-FR1 | <Ref> | <milestone> |
+<!-- No coverage table. The feature ⇄ FR join lives ONLY in release-calendar.yaml (frs[] per entry),
+     with each FR's `serves <Ref>` tag above as the FR-side declaration. validate-release-calendar.py
+     cross-checks both directions. -->
+
