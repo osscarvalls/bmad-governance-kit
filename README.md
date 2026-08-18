@@ -12,12 +12,15 @@ delegates the thinking to BMAD; it never forks it.**
 
 | Pillar | Owns | |
 |---|---|---|
-| `ROADMAP.md` | **WHAT + WHEN** | a feature **registry** (each feature a stable `Ref`), milestones, a **Coverage Matrix** (`Ref` ⇄ FR), a **Backlog** and a **Graveyard** |
-| PRD(s) | **HOW — testable** | FRs **namespaced per subsystem** (`<SUB>-FRn`), each serving a `Ref`; NFRs in their own section |
+| `ROADMAP.md` + `release-calendar.yaml` | **WHAT + ORDER + the join** | a **narrative `ROADMAP.md`** (milestones → features in prose: what/why + order; no dates, no FR tables) and **`release-calendar.yaml`** — the single *structured* join (feature/enabler → milestone → FRs/NFRs → epics → stories) |
+| PRD(s) | **HOW — testable** | FRs **namespaced per subsystem** (`<SUB>-FRn`), each declaring the `Ref` it `serves`; NFRs in their own section |
 | `DECISIONS.md` | **WHY-NOT** | an **append-only** log of closed decisions (`D-NN`) with forward supersede/reframe pointers |
 | `architecture.md` | **HOW — structural** | an invariant **spine**, per-subsystem structure, milestone deltas; every decision tagged `[milestone · anchored\|movable · serves <Ref>]` |
 
-The join key is the `Ref`: a feature ⇄ its FRs (one per subsystem) ⇄ the architecture ⇄ the decision. A
+The join key is the `Ref` (a feature's kebab-case handle = its calendar entry key): a feature ⇄ its FRs (one
+per subsystem, each `serves <Ref>`) ⇄ the architecture ⇄ the decision. The join lives in **exactly one
+place** — `release-calendar.yaml` — written only through **`calendar-ops.py`** and cross-checked against the
+PRDs by **`validate-release-calendar.py`** (one source, one schema validation, no hand-kept matrix). A
 `GOVERNANCE.md` constitution states the anti-drift laws and is loaded every session. Full model in
 [`reference/governance-model.md`](reference/governance-model.md).
 
@@ -37,7 +40,7 @@ The join key is the `Ref`: a feature ⇄ its FRs (one per subsystem) ⇄ the arc
 |---|---|
 | `decision-intake` | Diagnose a raw idea/opportunity/vendor by phases with kill-gates → verdict routes onward |
 | `product-spec` | Specify a whole product line: brief → journeys → deep PRDs → UX → architecture, with a carry-down contract + completeness gate |
-| `feature-intake` | Register a shaped feature: Backlog → triage → kill-with-reason **or** one FR per layer + coverage |
+| `feature-intake` | Register a shaped feature: Backlog → triage → kill-with-reason **or** register in the calendar + one FR per layer, join schema-validated |
 | `decision-record` | Append a closed decision (`D-NN`), add supersede pointers, propagate — never duplicating |
 | `tech-scout` | Evaluate a technology against the spine → adopt + record, or open a spike |
 | `governance-check` | Read-only coherence audit → one PASS/WARN/FAIL report; never auto-fixes |
@@ -46,7 +49,9 @@ The join key is the `Ref`: a feature ⇄ its FRs (one per subsystem) ⇄ the arc
 | `fix` | The short path for a bug / non-feature change (no new Ref/FR) |
 
 Each operator reads the target project's `GOVERNANCE.md` to resolve the pillar paths, so the kit is
-**portable** — nothing is hardcoded to any one project.
+**portable** — nothing is hardcoded to any one project. The two calendar scripts are likewise project-agnostic
+(they read the subsystem namespaces, PRD paths and milestone vocabulary from the calendar's own `config:`
+block); they need **Python 3 + PyYAML** (`pip install pyyaml`).
 
 ## Install
 
@@ -73,7 +78,10 @@ bmad-governance-kit/
 │   ├── controlled-vocabularies.md   # status vocab · tag grammar · effect verbs
 │   └── operating-contract.md        # the contract every skill obeys
 └── skills/
-    ├── governance-scaffold/  # the scaffolder (7 steps) + assets/ (7 templates)
+    ├── governance-scaffold/  # the scaffolder (7 steps) + assets/
+    │   └── assets/
+    │       ├── templates/     # ROADMAP · GOVERNANCE · PRD · architecture · release-calendar.yaml · todos
+    │       └── scripts/       # calendar-ops.py (the only writer) · validate-release-calendar.py
     ├── decision-intake/  product-spec/  feature-intake/  decision-record/
     ├── tech-scout/  governance-check/  epics-projection/  test-strategy/  fix/
 ```

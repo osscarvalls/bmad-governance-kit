@@ -69,9 +69,9 @@ hosting/gating is HOW → architecture, never the PRD; a concrete architecture n
 - **04 · PRD build.** Full template per subsystem the line touches; the same topology as `feature-intake` at
   product scale (one-FR-per-layer, tag, namespace `n+1`, NFR→NFR-section); **each FR references its
   journey(s)** (`realizes UJ-N`) — the journey→FR trace is the antidote to under-specification; stale-founded
-  FRs get rewritten/retired. **Consolidate incrementally at close** (plant Refs in the Coverage Matrix, stale
-  rows to the Graveyard with their id, register product decisions via `decision-record`) — not deferred to
-  step-07.
+  FRs get rewritten/retired. **Consolidate incrementally at close** (register features + wire `frs[]` in the
+  calendar via `calendar-ops.py`, kill stale entries with their `D-NN`, register product decisions via
+  `decision-record`, keep the validator PASS) — not deferred to step-07.
 - **05 · UX (before architecture).** UX is a first-class spec, not deferred. If a design pipeline exists,
   enter it **at the design layer only, consuming the brief + journeys + PRDs** — never fire its own brief/
   research/PRD phases (that creates a satellite spec). If design reveals a missing WHAT, it goes back to the

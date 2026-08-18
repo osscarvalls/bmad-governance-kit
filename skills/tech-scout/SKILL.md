@@ -50,20 +50,21 @@ granularly.
   promoted + archived to `history/`.
 - **REJECT** → `decision-record` with verb KILLS (Graveyard with reason + id). **Ends here** — skip the
   propagation-verify step (no structural footprint).
-- **SPIKE-FIRST** → the *only* branch where this skill edits docs by hand: a ROADMAP row set to `blocked`
-  (citing the spike) + a **phase-blocker** in architecture's open-questions section with the three mandatory
-  fields. **Adopt nothing.** Re-run from step 3 when the spike answers. Route to `decision-intake` if the
-  doubt is really product/business, not tech.
+- **SPIKE-FIRST** → the *only* branch where this skill touches the registry directly: the calendar entry set
+  to `blocked` (`python3 calendar-ops.py set-status <ref> blocked`, citing the spike) + a **phase-blocker**
+  in architecture's open-questions section with the three mandatory fields. **Adopt nothing.** Re-run from
+  step 3 when the spike answers. Route to `decision-intake` if the doubt is really product/business, not tech.
 
 ## 5 · Verify propagation (ADOPT only)
 
 The *material* propagation was done by `decision-record`; **verify** the three distinct footprints landed
 (architecture HOW-structural in the right section with the tag, authored by the architect; PRD HOW-testable
-FRs with the id; ROADMAP handle + Coverage cell), stitched by the id, **no duplication.** A missing footprint
-is completed *through `decision-record`* (the owner of propagation), not patched here.
+FRs with the id; the calendar entry with its `frs[]` wired, validator PASS), stitched by the id, **no
+duplication.** A missing footprint is completed *through `decision-record`* (the owner of propagation), not
+patched here.
 
 ## 6 · Report
 
-Branch-specific: ADOPT = id + three footprints; REJECT = id KILLS + Graveyard, no adoption footprint;
-SPIKE = blocked row + phase-blocker + nothing adopted. Confirm the intake trail is complete and only the docs
-the branch permits were touched. Recommend `governance-check`.
+Branch-specific: ADOPT = id + three footprints; REJECT = id KILLS + derived Graveyard, no adoption footprint;
+SPIKE = blocked calendar entry + phase-blocker + nothing adopted. Confirm the intake trail is complete and
+only the docs the branch permits were touched. Recommend `governance-check`.

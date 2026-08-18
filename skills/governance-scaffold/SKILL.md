@@ -1,6 +1,6 @@
 ---
 name: governance-scaffold
-description: Scaffold a durable governance layer onto a project that has already been planned with BMAD. Reads the existing BMAD planning artifacts (product brief, PRD, architecture, epics/stories) and projects them into a four-pillar "one truth, one place" topology — a ROADMAP registry (WHAT+WHEN with a feature registry, coverage matrix, backlog and graveyard), namespaced PRDs (HOW-testable), an append-only DECISIONS log (WHY-NOT), and an architecture doc with a spine + anchored/movable tags (HOW-structural) — plus a GOVERNANCE constitution that states the anti-drift rules. Portable and project-agnostic; does not add product features, it organizes what planning already produced so the project can be operated without drift. Use when the user says "scaffold the governance layer", "set up governance for this project", "bring this BMAD plan under governance", "add a governance layer", or has a BMAD-planned project with no registry/decision-log/coverage discipline yet.
+description: Scaffold a durable governance layer onto a project that has already been planned with BMAD. Reads the existing BMAD planning artifacts (product brief, PRD, architecture, epics/stories) and projects them into a four-pillar "one truth, one place" topology — a ROADMAP registry (a narrative ROADMAP.md for what+order plus release-calendar.yaml as the single structured feature⇄FR join, written via calendar-ops.py and schema-validated), namespaced PRDs (HOW-testable), an append-only DECISIONS log (WHY-NOT), and an architecture doc with a spine + anchored/movable tags (HOW-structural) — plus a GOVERNANCE constitution that states the anti-drift rules. Portable and project-agnostic; does not add product features, it organizes what planning already produced so the project can be operated without drift. Use when the user says "scaffold the governance layer", "set up governance for this project", "bring this BMAD plan under governance", "add a governance layer", or has a BMAD-planned project with no registry/decision-log/coverage discipline yet.
 ---
 
 # governance-scaffold
@@ -21,8 +21,8 @@ Four **co-equal pillars** — each owns exactly one question, and nothing is wri
 
 | Pillar | Owns | Rule |
 |---|---|---|
-| **ROADMAP.md** | **WHAT + WHEN** — milestones, a **feature registry** (each feature has a stable `Ref` id), a **Coverage Matrix** (`Ref` ⇄ FRs), a **Backlog** (idea-state, pre-triage) and a **Graveyard** (killed, with reason). | The single source of "what exists and when". Says neither *how* nor *why*. |
-| **PRD(s)** | **HOW — testable** — Functional Requirements, testable, **namespaced per subsystem/layer** (`<SUB>-FRn`); non-functional requirements live in **NFR sections**, never as FRs. | Each subsystem's requirements live in its own PRD. Every FR declares which `Ref` it `serves`. |
+| **ROADMAP** (`ROADMAP.md` + `release-calendar.yaml`) | **WHAT + ORDER + the join** — a **narrative `ROADMAP.md`** (milestones → features in prose, order + why; no dates, no FR tables) + **`release-calendar.yaml`**, the single *structured* join (feature/enabler → milestone → FRs/NFRs → epics → stories, with status + `decisions[]`). | The single source of "what exists and in what order". Says neither *how* nor *why-not*. The narrative is human-edited; the yaml is written only via `calendar-ops.py`. |
+| **PRD(s)** | **HOW — testable** — Functional Requirements, testable, **namespaced per subsystem/layer** (`<SUB>-FRn`); non-functional requirements live in **NFR sections**, never as FRs. | Each subsystem's requirements live in its own PRD. Every FR declares which `Ref` it `serves` — the FR-side of the join the validator checks. No coverage table in the PRD. |
 | **DECISIONS.md** | **WHY-NOT** — an **append-only** log of closed decisions (`D-NN`), with forward supersede/reframe pointers. | Index of what was decided and killed. Never edited in place. Long rationale/evidence goes to `history/`. |
 | **architecture.md** | **HOW — structural** — the invariant **spine** (§A), per-subsystem structure (§B), milestone deltas (§C); every decision tagged `[milestone · anchored\|movable · serves <Ref>]`. | Points at ROADMAP/DECISIONS/PRD, never restates them. A feature that touches the spine leaves its mark here. |
 
@@ -40,25 +40,34 @@ Plus a **constitution** and two supporting stores:
 - **`history/`** — archived evidence (meeting notes, superseded docs). Append/archive only; never edited.
 - **`implementation/`** (regenerable) — epics **projected** from a milestone. Not a source of truth.
 
-**The navigable chain:** a *feature* (`Ref` in ROADMAP) ⇄ its *FRs* (one per subsystem it touches, in the
-PRDs) ⇄ the *how* (architecture.md) ⇄ the *why-not* (`D-NN` in DECISIONS). The `Ref` is the join key.
+Plus the two **calendar scripts**, copied next to `release-calendar.yaml` from this skill's
+`assets/scripts/`: **`calendar-ops.py`** (the only sanctioned writer of the yaml) and
+**`validate-release-calendar.py`** (the schema check of the join). They need Python 3 + PyYAML.
+
+**The navigable chain:** a *feature* (a `<Ref>` entry in `release-calendar.yaml`, named in the narrative
+ROADMAP) ⇄ its *FRs* (one per subsystem it touches, in the PRDs, each `serves <Ref>`) ⇄ the *how*
+(architecture.md) ⇄ the *why-not* (`D-NN` in DECISIONS). The `Ref` is the join key; the join lives only in
+the calendar.
 
 ## The anti-drift laws (this skill writes them into GOVERNANCE.md)
 
-1. **If it is not in the registry, it does not exist.** A "loose" feature is a contradiction in terms.
-2. **ROADMAP=WHEN · PRD=HOW-testable · architecture=HOW-structural · DECISIONS=WHY-NOT.** If a change makes
-   you write the *same fact* in two of the four, stop — you are duplicating. (Propagating a *consequence* —
-   a state change in ROADMAP, a new FR in a PRD, a spine decision in architecture — is not duplication:
-   those are different facts joined by the `Ref`/`D-NN`.)
-3. **New idea → a `state=idea` row in `milestone=Backlog`.** Then triage: which subsystem? does it fit the
-   spine? anchored or movable? → assign a milestone **or kill it with a reason**.
-4. **Killed things are not deleted or reopened.** They live in the **Graveyard** with their reason + the
-   `D-NN` that closed them.
-5. **`epics.md` is PROJECTED from a milestone** and is regenerable — never a source of truth.
+1. **If it is not in the registry, it does not exist.** Registry = narrative `ROADMAP.md` + `release-calendar.yaml`.
+2. **ROADMAP=WHAT+ORDER · calendar=the JOIN · PRD=HOW-testable · architecture=HOW-structural ·
+   DECISIONS=WHY-NOT.** If a change makes you write the *same fact* in two of them, stop — you are
+   duplicating. (Propagating a *consequence* — a status in the calendar, a new FR in a PRD, a spine decision
+   in architecture — is not duplication: those are different facts joined by the `Ref`/`D-NN`.)
+   feature→milestone lives **only** in the calendar.
+3. **New idea → the Backlog.** Then triage: which subsystem? does it fit the spine? anchored or movable? →
+   register it in the calendar with a milestone **or kill it with a reason**.
+4. **Killed things are not deleted or reopened.** The **Graveyard is a derived view**: `status: killed` in
+   the calendar (with `decisions[]`) + the `D-NN` that closed them.
+5. **`epics.md` is PROJECTED from a milestone** and is regenerable — never a source of truth; the projection
+   writes `epics[]`/`stories[]` back to the calendar.
 
 ## Invariant patterns
 
-- **`Ref` is the join key.** `grep` a `Ref` across the PRDs → every layer it touches.
+- **`Ref` is the join key.** The feature's kebab-case handle = its calendar entry key; `grep` a `Ref` across
+  the PRDs → every layer it touches. The join itself lives only in `release-calendar.yaml`.
 - **One FR per layer.** A feature touching three subsystems → **three FRs** in three PRDs, all with the
   same `Ref` in their `serves`. An NFR (latency, security, residency, observability) → the **NFR section**,
   not an FR.

@@ -1,92 +1,84 @@
-# Step 02 — Scaffold the ROADMAP registry (WHAT + WHEN)
+# Step 02 — Scaffold the ROADMAP registry (narrative + release-calendar.yaml)
 
-**Objective:** write the first pillar — `{gov}/ROADMAP.md` — the single source of "what exists and when".
-It holds the **feature registry** (every feature with a stable `Ref`), the **milestones**, an empty-but-
-structured **Coverage Matrix**, and the **Backlog** and **Graveyard** sections. This is where "if it is not
-in the registry, it does not exist" becomes true.
+**Objective:** write the first pillar — the **ROADMAP registry** — in its two halves: a **narrative
+`{gov}/ROADMAP.md`** (what exists and in what order, in prose) and **`{gov}/release-calendar.yaml`**, the
+single *structured* source of the join (each feature → its milestone, and later its FRs/NFRs/epics/stories).
+This is where "if it is not in the registry, it does not exist" becomes true. The **join** (feature ⇄ FR)
+is filled in step-03; here we lay the two files and register every feature with its milestone.
 
 ## RULES
 
-- **First write of the skill.** Create `{gov}/ROADMAP.md` (greenfield) or extend the existing registry
-  (merge). Never clobber existing rows — fold them in.
-- **No invented features.** Every `Ref` traces to something the plan already contains (an epic, a PRD
+- **First write of the skill.** Create `{gov}/ROADMAP.md` + `{gov}/release-calendar.yaml` (greenfield) or
+  extend them (merge). Never clobber existing entries — fold them in.
+- **No invented features.** Every feature traces to something the plan already contains (an epic, a PRD
   feature, an architecture capability). If the plan implies a feature but never names it, register it and
-  mark it `provenance: inferred` so the user can confirm.
-- Match the source docs' language.
+  mark it (a note in the narrative, `provenance: inferred`) so the user can confirm.
+- **The yaml is written only via `calendar-ops.py`** — never hand-author or string-edit it. The narrative
+  `ROADMAP.md` is prose, human-owned.
+- Match the source docs' language for the narrative; the yaml keys/values stay in the kit's neutral vocab.
 
-## 1 · Extract the features
+## 1 · Copy the calendar tooling into `{gov}`
 
-Walk the epics/stories and the PRD. Each **coherent user-facing capability** becomes one **feature row**.
-An epic usually maps to one feature (sometimes a few); a lone story usually does not — group stories into
-the capability they serve. For each feature capture:
+Copy from this skill's `assets/scripts/` into `{gov}/` (next to where the yaml will live):
+`calendar-ops.py` and `validate-release-calendar.py`. They are **project-agnostic** — they read everything
+project-specific from the yaml's own `config:` block. Note the Python 3 + PyYAML requirement for the handoff.
 
-- **`Ref`** — a stable, short, meaningful id (e.g. `AUTH`, `SEARCH`, `BILLING`, or `F-01` if the project
-  prefers numbers). This is the join key — pick it to last. Never reuse a retired `Ref`.
-- **Feature (JTBD)** — one line, framed as the job it does for the user (delegate framing to
-  **`bmad-agent-pm`** if the plan's wording is implementation-flavoured).
-- **Subsystem(s)** — which of the step-01 subsystems it touches (this predicts how many FRs it will have).
-- **Milestone** — from the phasing agreed in step-00 (or `Backlog` if not yet scheduled).
-- **Status** — see the status vocabulary below.
-- **Decision** — the `D-NN` that scheduled/scoped it, if any (usually empty at scaffold time; filled as
-  decisions get logged).
+## 2 · Extract the features
 
-## 2 · Write ROADMAP.md
+Walk the epics/stories and the PRD. Each **coherent user-facing capability** becomes one **feature**; purely
+technical work with no user-facing story becomes an **enabler**. An epic usually maps to one feature
+(sometimes a few); a lone story usually does not — group stories into the capability they serve. For each
+capture:
 
-Start from the bundled template `assets/templates/ROADMAP.template.md` (it already carries the model
-explainer, the five laws, the status vocabulary, and the Coverage-Matrix/Graveyard/Backlog structure) and
-fill it from the features above. The section outline it produces:
+- **`Ref`** — a stable, short, meaningful kebab-case handle (e.g. `billing`, `agenda-sync`, or `F-01` if the
+  project prefers numbers). This becomes the **entry key** in the calendar and the join key — pick it to
+  last. Never reuse a retired handle.
+- **Feature (JTBD)** — one line for the narrative, framed as the job it does for the user (delegate framing
+  to **`bmad-agent-pm`** if the plan's wording is implementation-flavoured).
+- **Milestone** — from the phasing agreed in step-00 (or leave for the Backlog if not yet scheduled).
+- **Kind** — feature vs enabler.
 
-```markdown
-# <Project> — ROADMAP (registry: WHAT + WHEN)
+## 3 · Seed `release-calendar.yaml` (config by hand, entries via the script)
 
-> Single source of "what exists and when". Says neither HOW (→ PRDs / architecture) nor WHY-NOT (→ DECISIONS).
-> A feature not in this registry does not exist. Killed features live in the Graveyard, never deleted.
+Start from the bundled `assets/templates/release-calendar.template.yaml`. Fill only the **`config:`** block by
+hand (it is not entry data): `prd_dir`, the `subsystems:` map (each FR-namespace prefix → its PRD filename,
+from step-01), and the `milestones:` list (the closed milestone vocabulary from step-00). Create at least one
+`releases:` entry (e.g. the active release) with empty `features: {}` / `enablers: {}`.
 
-## Status vocabulary
-`idea` (Backlog, pre-triage) · `committed` · `committed (schema/scaffold — enforcement OFF)` · `blocked`
-· `hypothesis` (not committed) · `frozen` · `killed`
+Then register **every** feature/enabler with a **`calendar-ops.py` operation** — never by editing the yaml:
 
-## Milestones
-<one subsection per milestone, in order; each with a one-line intent + status>
-
-### <Milestone> · <intent>
-| Ref | Feature (JTBD) | Subsystems | Status | Decision |
-|-----|----------------|------------|--------|----------|
-| ... | ...            | ...        | ...    | ...      |
-
-## Coverage Matrix   <!-- Ref ⇄ FRs; filled/kept honest by step-03 -->
-### <Milestone>
-| Ref | <SUB1>-FR | <SUB2>-FR | ... |
-|-----|-----------|-----------|-----|
-| ... | ...       | ·         | ... |   <!-- "·" = this subsystem has no layer for this Ref -->
-
-## Backlog   <!-- idea-state features, pre-triage: each is a `state=idea` row awaiting a milestone or a kill -->
-| Ref | Idea | Candidate subsystems | Notes |
-|-----|------|----------------------|-------|
-
-## Graveyard   <!-- killed features: reason + the D-NN that closed them; never reopened -->
-| Ref | Feature | Reason | Decision |
-|-----|---------|--------|----------|
+```
+python3 {gov}/calendar-ops.py add features <ref> --milestone <M> --release <release>
+python3 {gov}/calendar-ops.py add enablers  <ref> --milestone <M> --release <release>
 ```
 
-- Put each feature under its milestone table.
-- Anything the plan lists as "later / maybe / out of scope for now" → **Backlog** (as `idea`), not a
-  milestone table. Anything the plan explicitly rejected → **Graveyard** with its reason (and a seed `D-NN`
-  placeholder that step-04 will assign a real number to).
-- Leave the **Coverage Matrix** rows present (one per `Ref`) but with cells to be filled in step-03 — the
-  matrix is the registry's half of the `Ref`⇄FR join; the PRD side is written next.
+Leave `frs[]`/`nfrs[]` empty for now (step-03 fills them). Anything the plan lists as "later / maybe / out of
+scope" → leave it out of the calendar and note it in the narrative **Backlog** section. Anything the plan
+explicitly rejected → register it and immediately `set-status <ref> killed` + `add-decision <ref> <D-NN>`
+(step-04 assigns the real `D-NN`); the Graveyard is a **derived view**, never a hand table.
 
-## 3 · Governance metadata
+## 4 · Write the narrative `ROADMAP.md`
 
-At the top of `ROADMAP.md`, declare the **coverage matrix as the source of truth** for the `Ref`⇄FR join
-(the PRD tables are the regenerable projection). This one line prevents the classic divergence where the
-same matrix is maintained in five files with no declared owner.
+Use `assets/templates/ROADMAP.template.md`. Write, in prose: the subsystem table, the five anti-drift laws
+(the template carries them), and one section per milestone **in order**, naming features by their `Ref`
+handle and explaining the what/why/sequence. **No FR tables, no coverage matrix, no dates** — those are the
+calendar's and the PRDs'. Add the Backlog (pre-triage ideas) and the derived-Graveyard note. In the
+front-matter, state that this is the **narrative** half and the yaml is the **structured** half (written via
+`calendar-ops.py` only) — the join has exactly one owner, so there is no "which of five files is the source"
+ambiguity to declare.
+
+## 5 · Validate the seed
+
+Run `python3 {gov}/validate-release-calendar.py`. With no FRs yet it should report `0 errors` (features with
+empty `frs[]` are fine until step-03; the validator only flags FRs that don't resolve). Fix any config/path
+error now — step-03 depends on the PRD paths in `config.subsystems` being correct.
 
 ## CHECKPOINT — Confirm the registry
 
-Show the user: the milestone tables (Ref · JTBD · subsystems · status), the Backlog, the Graveyard, and any
-row marked `inferred`. Ask them to confirm the `Ref` ids (they are permanent join keys) and the
-milestone/status of anything ambiguous.
+Show the user: the milestone sections of the narrative (Ref · JTBD · order), the calendar's feature/enabler
+entries per milestone (`calendar-ops.py get`), the Backlog, anything marked `inferred` or seeded-killed, and
+the validator's PASS. Ask them to confirm the `Ref` handles (they are permanent join keys) and the
+milestone of anything ambiguous.
 
 **Stop and wait** for confirmation before touching the PRDs.
 

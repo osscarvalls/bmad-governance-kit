@@ -59,14 +59,17 @@ was born.
 
 ## 5 · Propagate the consequence as a QUAD, not a duplicate (the anti-drift core)
 
-ROADMAP=WHEN · PRD=HOW-testable · architecture=HOW-structural · DECISIONS=WHY-NOT. Propagating the
-*consequence* to each is legitimate; **copying the same sentence into two is the drift this skill exists to
-prevent.** The effect verb drives what to touch:
+ROADMAP=WHAT+ORDER · calendar=the JOIN · PRD=HOW-testable · architecture=HOW-structural · DECISIONS=WHY-NOT.
+Propagating the *consequence* to each is legitimate; **copying the same sentence into two is the drift this
+skill exists to prevent.** The effect verb drives what to touch — and every calendar mutation is a
+`calendar-ops.py` operation, never a hand edit:
 
-- If it **CREATES/CONSTRAINS/MOVES/PROMOTES/KILLS a feature** → update the `Ref`'s ROADMAP row (status,
-  milestone, `Decision` column) or move it to the Graveyard with this `D-NN`.
+- If it **CREATES a feature** → `calendar-ops.py add`. **MOVES** → `set-milestone`. **PROMOTES** →
+  `set-status` (+ propose the narrative ROADMAP edit to the human). **KILLS** → `set-status <ref> killed` +
+  `add-decision <ref> <this D-NN>` (the Graveyard is derived). Always `add-decision` to stamp the entry with
+  this `D-NN`. Run `validate-release-calendar.py` after (must stay PASS).
 - If it **reclassifies features across milestones/paths** → delegate the change-management reasoning to
-  `bmad-correct-course` (the skill keeps the append-only entry, the graveyard discipline, and the routing).
+  `bmad-correct-course` (the skill keeps the append-only entry, the kill discipline, and the routing).
 - If it **changed a requirement** → the PRD FR is updated by `bmad-prd`.
 - **Ask explicitly: does this touch the spine?** If yes, `bmad-agent-architect` **authors** the architecture
   entry in the right section with the right anchored/movable tag + this `D-NN` (the skill guarantees it
